@@ -77,6 +77,7 @@ public class Metas extends AppCompatActivity
                 }else{
 
                     Toast.makeText(Metas.this, "ESPTomada1 Desligado", Toast.LENGTH_LONG).show();
+                    publicar();
                 }
             }
         });
