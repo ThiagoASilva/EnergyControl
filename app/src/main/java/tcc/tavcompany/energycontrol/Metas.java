@@ -1,9 +1,15 @@
 package tcc.tavcompany.energycontrol;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,8 +19,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -23,28 +35,41 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import tcc.tavcompany.energycontrol.Controller.Calculos;
+import tcc.tavcompany.energycontrol.Controller.ComunicacaoMQTT;
+import tcc.tavcompany.energycontrol.model.DispositivoMedidor;
 
 public class Metas extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    static String MQTTHOST = "tcp://192.168.0.18:1883";
-    static String USERNAME = "systemem";
-    static String PASSWORD = "kwhy123";
-    String Topico = "TCCCOMANDO";
-    String clientId = "AplicacaoAndroid";
-
-    MqttAndroidClient client;
-
+    ComunicacaoMQTT CMQTT;
+    private ArrayList<String> dados = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_metas);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ListView lv = (ListView) findViewById(R.id.Lista_dispositivos);
+        final TextView metaR = (TextView) findViewById(R.id.textViewMetaReal);
+        final TextView metaKWH = (TextView) findViewById(R.id.textViewMetaKWH);
+        final AlertDialog dialogo;
+        final EditText caixaDeTexto;
+        dados.add("ESPTomada1");
+        dados.add("EspTomada2");
+        dados.add("ESPTomada3");
 
+        lv.setAdapter(new ListaDeDispositivosMAdapter(this, R.layout.item_da_lista, dados));
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Colocar funções para o Energy Control", Snackbar.LENGTH_LONG)
@@ -61,56 +86,42 @@ public class Metas extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Botoes---------------------------------------
+        CMQTT = new ComunicacaoMQTT(this.getApplicationContext());
+        dialogo = new AlertDialog.Builder(this).create();
+        caixaDeTexto = new EditText(this);
 
+        dialogo.setTitle("Definir meta em Reais");
+        dialogo.setView(caixaDeTexto);
+        final Calculos c = new Calculos();
 
-        Switch LigarESP = (Switch) findViewById(R.id.switchESP1);
-        LigarESP.setChecked(true);
-
-        LigarESP.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        dialogo.setButton(DialogInterface.BUTTON_POSITIVE, "Salvar meta", new DialogInterface.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(compoundButton.isChecked()){
+            public void onClick(DialogInterface dialogInterface, int i) {
 
-                    Toast.makeText(Metas.this, "ESPTomada1 Ligado", Toast.LENGTH_SHORT).show();
-                    publicar();
-                }else{
+                String texto = caixaDeTexto.getText().toString();
 
-                    Toast.makeText(Metas.this, "ESPTomada1 Desligado", Toast.LENGTH_LONG).show();
-                    publicar();
+                try {
+
+                    Double valor = Double.parseDouble(caixaDeTexto.getText().toString());
+                    int k = (int) c.obterKWHPorValorMonetario(valor);
+                    metaR.setText("R$ " + valor);
+                    metaKWH.setText("KWH " + k);
+                    Toast.makeText(Metas.this, "Mata definida com sucesso!", Toast.LENGTH_SHORT).show();
+
+                }catch (Exception e){
+
+                    Toast.makeText(Metas.this,"Não foi possivel definir a meta devido o texto digitado não ser valor monetário.", Toast.LENGTH_LONG).show();
+
                 }
             }
         });
+        metaR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogo.show();
+            }
+        });
 
-
-        //MQTT----------------------------------------
-
-
-        client = new MqttAndroidClient(this.getApplicationContext(), MQTTHOST, clientId);
-
-        MqttConnectOptions options = new MqttConnectOptions();
-
-        options.setUserName(USERNAME);
-        options.setPassword(PASSWORD.toCharArray());
-
-        try {
-            IMqttToken token = client.connect(options);
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Toast.makeText(Metas.this,"MQTT conectado!", Toast.LENGTH_LONG).show();                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Something went wrong e.g. connection timeout or firewall problems
-                    Toast.makeText(Metas.this, "MQTT Falhou ao conectar!", Toast.LENGTH_LONG).show();
-                    Log.e("CONEXAO BROKER MQTT", exception.getMessage());
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-            Log.e("Erro", e.getMessage());
-        }
     }
 
     @Override
@@ -170,19 +181,54 @@ public class Metas extends AppCompatActivity
         return true;
     }
 
-    public void ligarDispositivo(String dispositivo){
+    private class ListaDeDispositivosMAdapter extends ArrayAdapter<String>{
+        private int layout;
+        private ListaDeDispositivosMAdapter(@NonNull Context context, int resource, @NonNull List<String> objects) {
+            super(context, resource, objects);
+            layout = resource;
+        }
 
-        String comando = "Aplicativo/comando/ligar_"+dispositivo;
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            ViewHolder mainViewHolder = null;
+            if(convertView == null){
+                LayoutInflater inflater = getLayoutInflater().from(getContext());
+                convertView = inflater.inflate(layout, parent, false);
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.ImagemItem = (ImageView) convertView.findViewById(R.id.imagem_item_da_lista);
+                viewHolder.titulo = (TextView) convertView.findViewById(R.id.titulo_item);
+                viewHolder.botao = (Switch) convertView.findViewById(R.id.botao_switch_da_lista);
+                DispositivoMedidor dm = new DispositivoMedidor().obterPeloId(position);
+                viewHolder.titulo.setText(dm.getNome());
+                viewHolder.botao.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if(compoundButton.isChecked()){
 
+                            Toast.makeText(Metas.this, "ESPTomada1 Ligado", Toast.LENGTH_SHORT).show();
+                            CMQTT.publicar();
+                        }else{
+
+                            Toast.makeText(Metas.this, "ESPTomada1 Desligado", Toast.LENGTH_LONG).show();
+                            CMQTT.publicar();
+                        }
+                    }
+                });
+                convertView.setTag(viewHolder);
+            }else{
+                mainViewHolder = (ViewHolder) convertView.getTag();
+                mainViewHolder.titulo.setText(getItem(position));
+            }
+
+            return convertView;
+        }
     }
 
-    public void publicar(){
-        String topic = Topico;
-        String mensagem = clientId+"/comando_dispositivo/ESPTOMADA1%ligar-desligar";
-        try {
-            client.publish(topic, mensagem.getBytes(), 0, false);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+    public class ViewHolder{
+
+        ImageView ImagemItem;
+        TextView titulo;
+        Switch botao;
     }
 }

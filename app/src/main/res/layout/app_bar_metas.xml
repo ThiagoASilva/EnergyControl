@@ -33,20 +33,41 @@
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/tituloActivity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ESPTomada1"
+        android:layout_marginTop="55dp"
+        android:text="Meta gerencial mensal"
         android:textSize="30sp"
+        android:textAlignment="center"
+        app:layout_anchor="@+id/include2"
+        app:layout_anchorGravity="left|top" />
+
+    <ListView
+        android:id="@+id/Lista_dispositivos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="300dp"
         app:layout_anchor="@+id/include2"
         app:layout_anchorGravity="left|center" />
 
-    <Switch
-        android:id="@+id/switchESP1"
+    <TextView
+        android:id="@+id/textViewMetaReal"
+        android:layout_width="411dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Toque para alterar a meta"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textViewMetaKWH"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Desligado"
-        app:layout_anchor="@+id/textView5"
-        app:layout_anchorGravity="bottom|center" />
+        android:layout_marginTop="130dp"
+        android:text="KWH"
+        android:textAlignment="center"
+        android:textSize="15sp" />
+
 
 </android.support.design.widget.CoordinatorLayout>
