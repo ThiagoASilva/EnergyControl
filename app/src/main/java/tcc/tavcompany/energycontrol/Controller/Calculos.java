@@ -26,4 +26,23 @@ public class Calculos {
 
         return kwh;
     }
+
+    public double obterValorMonetarioTotalPorKWH(double KWH){
+        double valorM = 0;
+
+        valorM = KWH * (ICMS_Energia + ICMS_Uso_Sist_Distr);
+        valorM = valorM + (Adicional_Bandeira_Amarela + Adicional_Bandeira_Vermelha);
+        valorM = (valorM / 100) * (PERCENT_COFINS + PERCENT_PIS_PASEP);
+        valorM = valorM + COSIP_Residencial;
+
+        return valorM;
+    }
+
+    public double obterValorMonetarioIndividualPorKWH(double KWH){
+        double valorM = 0;
+
+        valorM = KWH * (ICMS_Energia + ICMS_Uso_Sist_Distr);
+
+        return valorM;
+    }
 }

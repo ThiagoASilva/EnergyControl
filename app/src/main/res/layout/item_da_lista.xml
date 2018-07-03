@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         app:srcCompat="@drawable/meta_icone" />
 
-    <EditText
+    <TextView
         android:id="@+id/titulo_item"
         android:layout_width="201dp"
         android:layout_height="wrap_content"
@@ -21,7 +21,6 @@
         android:layout_toEndOf="@+id/imagem_item_da_lista"
         android:layout_toRightOf="@+id/imagem_item_da_lista"
         android:ems="10"
-        android:inputType="textPersonName"
         android:text="Name" />
 
     <Switch
@@ -32,4 +31,21 @@
         android:layout_toEndOf="@+id/titulo_item"
         android:layout_toRightOf="@+id/titulo_item"
         android:text="Switch" />
+
+    <SeekBar
+        android:id="@+id/seekBarPercentMetaItem"
+        android:layout_width="197dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imagem_item_da_lista"
+        android:layout_toEndOf="@+id/imagem_item_da_lista"
+        android:layout_toRightOf="@id/imagem_item_da_lista"/>
+
+    <TextView
+        android:id="@+id/textoMeta"
+        android:layout_width="82dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imagem_item_da_lista"
+        android:layout_alignEnd="@+id/botao_switch_da_lista"
+        android:layout_alignRight="@id/botao_switch_da_lista"
+        android:text="TextView" />
 </RelativeLayout>

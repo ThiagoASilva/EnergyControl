@@ -9,8 +9,8 @@
             android:icon="@drawable/ic_metas"
             android:title="Metas" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
+            android:id="@+id/nav_dispositivos"
+            android:icon="@drawable/ic_dispositivos"
             android:title="Gallery" />
         <item
             android:id="@+id/nav_slideshow"

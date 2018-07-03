@@ -85,8 +85,9 @@ public class TelaPrincipal extends AppCompatActivity
             // Handle the camera action
             Intent intent = new Intent(this, Metas.class);
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
-
+        } else if (id == R.id.nav_dispositivos) {
+            Intent intent = new Intent(this, Dispositivos.class);
+            startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {

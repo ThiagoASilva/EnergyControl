@@ -2,7 +2,24 @@ package tcc.tavcompany.energycontrol.model;
 
 public class DispositivoMedidor {
     String Nome;
-    int ID, Icone;
+    int ID, Icone, porcentagemMeta = 0;
+    boolean ligado;
+
+    public int getPorcentagemMeta() {
+        return porcentagemMeta;
+    }
+
+    public void setPorcentagemMeta(int porcentagemMeta) {
+        this.porcentagemMeta = porcentagemMeta;
+    }
+
+    public boolean isLigado() {
+        return ligado;
+    }
+
+    public void setLigado(boolean ligado) {
+        this.ligado = ligado;
+    }
 
     public int getID() {
         return ID;
@@ -29,19 +46,10 @@ public class DispositivoMedidor {
     }
 
     public DispositivoMedidor obterPeloId(int ID){
-        if(ID == 1){
-            this.setNome("ESPTomada1");
+
+            this.setNome("ESPTomada" + ID);
             this.setID(ID);
-        }else if(ID == 2){
-            this.setNome("ESPTomada2");
-            this.setID(ID);
-        }else if (ID == 3){
-            this.setNome("ESPTomada3");
-            this.setID(ID);
-        }else{
-            this.setNome("Desconecido ID:" + ID);
-            this.setID(ID);
-        }
+
         return this;
     }
 }
